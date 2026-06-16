@@ -1,0 +1,175 @@
+
+1) Basic Idea of first project(crud application of content)
+    a). Controller
+    b). Service
+    c). Repositery
+    d). Model
+
+ 2). this is the basic structure of first project here
+    first problem is that we are using Map as database Now we are  going to use H2 database
+    , for that we are going to use jpa and hibernator
+    Jpa = It is a java specification used for ORM.jpa is an interface/rule book
+            which provide declaration of method but not implemented it
+    Hibernator = it is a complete framework for performing ORM, following method of jpa
+3) a. Model repositery class is marked with annotation @Entity
+   b. We have to mark as @Id to one variable as key This field uniquely identifies each row in the database table.
+   c. Added some instruction in application.properties like url,h2 database enabled, h2 database access path
+
+   d. change cateogoryRepository class to interface
+
+    public interface WritoRepository extends JpaRepository<Writo,String>
+
+    Spring does this internally:
+
+        Detects interface
+        Creates a runtime class (proxy)
+        Implements all methods using Hibernate
+        Uses DB (H2/MySQL) to execute SQL
+
+    👉 So YOU never write implementation . All implementation is done by spring internally
+   e. whatever ouptut we will get through writoRepository will be optional
+   f. It Require NoArgsconstructor in model class as to create object automatically
+
+  4).Added lombok dependencies in our project
+    a. to get gettter setter constructor easily
+
+2). DTO(Data transfer object)
+
+    DTO are simple java class that represent the subset of entity model that can have more
+    information.These are designed to tranfer data between service and component
+
+3). What actually happening
+
+    Entity stores actual database data.
+    Request DTO takes input.
+    Response DTO sends output.
+    Data is converted between DTO and Entity.
+
+    DTO is just like a wrapper/filter for transferring data safely and cleanly.
+
+4).How it is done
+
+    DTO Flow (Category Example)
+
+    User sends data → Request DTO form
+    Request DTO converted to → Entity pass in → Database
+    from Database → Entity  is retreived as → Response DTO and it is passed to → User
+
+    How it works
+    Controller receives Request DTO
+    Service converts DTO → Entity and saves in DB
+    Service converts Entity → Response DTO
+    Controller returns Response DTO to user
+
+5).for converting this to category to  request DTO , request DTO to category ,
+    category to response DTO we need Modelmapper
+    Add ModelMapper dependencies in your project and a bean of this modelmapper.as there is no separate
+    class present for this create bean in appconfig class and mark that class as configuration class. wherever
+    needed Retreive that modelmapper and  use this to convert.
+    modelmapper.map(category,CategoroyDTO.class)
+
+
+     this technique give better control what input to take and what to show to user
+
+Now we have understand how data should be taken , data to be store, data to be shown to user
+Now Next concept is :
+
+6).Pagination
+
+    Pagination means dividing large data into small pages and showing one page at a time.
+
+    🧠 Simple Example
+
+    Instead of showing 1000 customers at once:
+
+    Page 1 → 10 customers
+    Page 2 → next 10 customers
+    Page 3 → next 10 customers
+
+    for this
+
+    we use Pageable interface and PageRequest clas which implement this Pageable interface
+
+    PageNumber,PageSize Take this two parameter as input using requestparam
+
+    Pageable PageDetails = PageRequest.of(PageNumber,PageSize);
+    Page<Category> categoryPage = categoryRepository.findAll(PageDetails);
+
+    List<Category> categories = categoryPage.getContent();
+    HERE Page contain a list of object
+    Here PageNumber means in which page should you want to go like page means a bunch of customer
+    PageSize means = no. of customer in one page
+    Along with that we have to create some other variable too
+
+            private Integer pageNumber;
+            private Integer pageSize;
+            private Long totalElement;
+            private Integer totalPages;
+            private boolean lastPage;
+
+    these all should be define in CategoryResponse for output
+    this all information when we return along with data then it is actually pagination in action
+
+
+6).AppConstant
+
+    It is a class which is used for defining all constant varibale at one place
+    for Ex. pageNumber,PageSize we want default value for these varible too
+            so such information is stored here so to change we can get all
+            constant variable at one place
+
+7).Sorting
+
+    It is a way of arranging data on various parameter
+    for this
+        Sort sortByAndOrder = sortOrder.equalsIgnoreCase("asc") ?
+                        Sort.by(sortBy).ascending()
+                        : Sort.by(sortBy).descending();
+    Again we have to take every parameter on the basis of you want
+    to arrange  in ascending or descending order
+    Ex. in our project we have two thing categoryId and CategoryName
+    and we want to arrange data on basis of any parameter
+    so We take both parameter as RequestParam and need to provide
+    default value to as at one time we don't want to arrange data on all
+    parameter basis or default value in necessary
+    Then in serviceImpl we have to use Sort to define sorting way
+8).Standard Exception Returning
+    Using APIResponse: use to send standart format for exception
+    ex.
+    {
+        "message": "Category not found with CategoryId:1",
+        "status": false
+    }
+    In  such form so use this class and wherever we want to send Exception
+    we pass message and status to this class
+
+9). then we learn about relation in jpa
+    how relationsip between different entity work
+    check notes in media project
+
+10). then we created product entity and managed it to along with category class
+    this is done after understanding relation between entity
+11).now we are learning about spring security
+    check notes of secuirtydemo
+    Yet to create notes of security Authentication
+12:WE implemented User,Address, Role entity in our project
+   Few new change we have done that we have not  understand in Relationship in JPA.
+   1).One thing is sure we need getter , setter to set value by jpa to entity
+   2). @Data annotation is providing us but we still added , i think tht is not necessay
+   3). if WE want that in our project, Some Entity varible have unique value
+       then use @UniqueConstraint above class and mention which all field you want to unique
+   4). for every class , we can set Table value that will be reflected in database
+        using @Table annotation and inside Table we do uniqueconstraint
+   5). @Data annoation provide tostring method which  is used when
+        we want to print user , role and if we have relation with other calss in user
+        that will also be called and that class will also conatin user  it will again call
+        it will form a loop
+        so its better to use @ToString.Exclude annotation above mapping class not inversemapping class
+
+
+
+    6). Cascade.type = delete and orphanremoval = true they both are use
+        to delete or remoe child entiyy when parent entiy is deleted but
+        i did't understnd how they work
+
+
