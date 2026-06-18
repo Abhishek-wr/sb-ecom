@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
+
 public class UserInfoResponse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,5 +18,16 @@ public class UserInfoResponse {
     private String jwtToken;
     private List<String> roles;
 
+    public UserInfoResponse(Long id, String username, List<String> roles) {
+        this.id = id;
+        this.username = username;
+        this.roles = roles;
+    }
 
+    public UserInfoResponse(Long id, String username, String jwtToken, List<String> roles) {
+        this.id = id;
+        this.username = username;
+        this.jwtToken = jwtToken;
+        this.roles = roles;
+    }
 }

@@ -36,47 +36,30 @@ public class JwtUtils {
 
     @Value("${spring.app.jwtSecret}")
     private String jwtSecret;
+    @Value("${spring.ecom.app.jwtCookie}")
+    private String jwtCookie;
 
-//    @Value("${spring.app.jwtCookieName}")
-//    private String jwtCookie;
 
-    public String getJwtFromHeader(HttpServletRequest request){
-        String bearerToken = request.getHeader("Authorization");
-        logger.debug("Authorization Header : {} ", bearerToken);
-        if(bearerToken != null && bearerToken.startsWith("Bearer ")){
-            return bearerToken.substring(7); // remove bearer prefix
+    public String getJwtFromCookies(HttpServletRequest request){
+        Cookie cookie = WebUtils.getCookie(request,jwtCookie);
+        if(cookie != null ){
+
+            return cookie.getValue();
+        }else{
+            return null;
         }
-        return null;
     }
-//    public String getJwtFromCookies(HttpServletRequest request){
-//        Cookie cookie = WebUtils.getCookie(request,jwtCookie);
-//        if(cookie != null ){
-//            return cookie.getValue();
-//        }else{
-//            return null;
-//        }
-//    }
-//
-//    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal){
-//        String jwt = generateTokenfromUserName(userPrincipal.getUsername());
-//        ResponseCookie cookie = ResponseCookie.from(jwtCookie,jwt)
-//                .path("/api")
-//                .maxAge(24*60*60)
-//                .httpOnly(false)
-//                .build();
-//        return cookie;
-//    }
-//    public String generateTokenfromUserName(String username){
-//        return Jwts.builder().
-//                subject(username)
-//                .issuedAt(new Date())
-//                .expiration(new Date((new Date().getTime() +jwtExpirationMs)))
-//                .signWith(key())
-//                .compact();
-//    }
-    // Generating token from username
-    public String generateTokenformUserName(UserDetails userDetails){
-        String username = userDetails.getUsername();
+
+    public ResponseCookie generateJwtCookie(UserDetailsImpl userPrincipal){
+        String jwt = generateTokenfromUserName(userPrincipal.getUsername());
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie,jwt)
+                .path("/api")
+                .maxAge(24*60*60)
+                .httpOnly(false)
+                .build();
+        return cookie;
+    }
+    public String generateTokenfromUserName(String username){
         return Jwts.builder().
                 subject(username)
                 .issuedAt(new Date())
@@ -84,6 +67,7 @@ public class JwtUtils {
                 .signWith(key())
                 .compact();
     }
+
     // Gertting username form jwt token(username from token)
     public String getUserNameFromJWTToken(String token){
         return Jwts.parser()
@@ -102,7 +86,7 @@ public class JwtUtils {
     // validate jwt token
     public boolean validateJwtToken(String authToken){
         try{
-            System.out.println("Validate");
+
             Jwts.parser()
                     .verifyWith((SecretKey) key())
                     .build()

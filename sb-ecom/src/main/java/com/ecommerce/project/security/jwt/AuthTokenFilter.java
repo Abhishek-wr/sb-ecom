@@ -20,6 +20,7 @@ import java.io.IOException;
 
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
+
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -57,7 +58,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     private String parsejwt(HttpServletRequest request) {
-        String jwt = jwtUtils.getJwtFromHeader(request);
+        String jwt = jwtUtils.getJwtFromCookies(request);
         logger.debug("AuthTokenFilter.java:{} ",jwt);
         return jwt;
     }
