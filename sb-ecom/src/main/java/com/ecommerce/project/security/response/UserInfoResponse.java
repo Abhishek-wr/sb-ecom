@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserInfoResponse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long Id;
+    private Long id;
     private String username;
     private String jwtToken;
     private List<String> roles;
