@@ -67,6 +67,12 @@ public class JwtUtils {
                 .signWith(key())
                 .compact();
     }
+    public ResponseCookie getCleanJwtCookie(){
+        ResponseCookie cookie = ResponseCookie.from(jwtCookie,null)
+                .path("/api")
+                .build();
+        return cookie;
+    }
 
     // Gertting username form jwt token(username from token)
     public String getUserNameFromJWTToken(String token){
